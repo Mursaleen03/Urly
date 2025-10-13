@@ -1,57 +1,76 @@
+import {Input} from "./ui/input";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { BeatLoader } from "react-spinners";
-import Error from "./error";
-import { useState } from "react";
+} from "./ui/card";
+import {Button} from "./ui/button";
+import { useNavigate, useSearchParams} from "react-router-dom";
+import {useEffect, useState} from "react";
 import * as Yup from "yup";
+import Error from "./error";
+import {login} from "db/apiAuth";
+import {BeatLoader} from "react-spinners";
+import { UrlState } from "@/context.jsx";
+import useFetch from "@/hooks/use-fetch";
 
 const Login = () => {
-  const [errors, setErrors] = useState([]);
+  let [searchParams] = useSearchParams();
+  const longLink = searchParams.get("createNew");
+
+  const navigate = useNavigate();
+
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
+  const {loading, error, fn: fnLogin, data} = useFetch(login, formData);
+  const {fetchUser} = UrlState();
+
+  useEffect(() => {
+    if (error === null && data) {
+      fetchUser();
+      navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
+    }
+  }, [error, data]);
+
   const handleLogin = async () => {
-    setErrors([])
+    setErrors([]);
     try {
       const schema = Yup.object().shape({
-        email:Yup.string()
-          .email("Invalid Email")
+        email: Yup.string()
+          .email("Invalid email")
           .required("Email is required"),
-        
-        password:Yup.string()
+        password: Yup.string()
           .min(6, "Password must be at least 6 characters")
-          .required("Password is required")
+          .required("Password is required"),
       });
+
       await schema.validate(formData, {abortEarly: false});
-      // api call
+      await fnLogin();
     } catch (e) {
       const newErrors = {};
 
       e?.inner?.forEach((err) => {
         newErrors[err.path] = err.message;
       });
+
       setErrors(newErrors);
     }
-  }
+  };
 
   return (
     <Card>
@@ -60,35 +79,35 @@ const Login = () => {
         <CardDescription>
           to your account if you already have one
         </CardDescription>
-          <Error message={"Some error"} />
+        {error && <Error message={error.message} />}
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="space-y-1">
-          <Input 
-          name="email"
-          type="email"
-          placeholder="Enter Email"
-          onChange={handleInputChange}
+          <Input
+            name="email"
+            type="email"
+            placeholder="Enter Email"
+            onChange={handleInputChange}
           />
-          {errors.email && <Error message={errors.email} /> }
         </div>
+        {errors.email && <Error message={errors.email} />}
         <div className="space-y-1">
-          <Input 
-          name="password"
-          type="password"
-          placeholder="Enter Password"
-          onChange={handleInputChange}
+          <Input
+            name="password"
+            type="password"
+            placeholder="Enter Password"
+            onChange={handleInputChange}
           />
-          {errors.password && <Error message={errors.password} /> }
-          
         </div>
+        {errors.password && <Error message={errors.password} />}
       </CardContent>
       <CardFooter>
         <Button onClick={handleLogin}>
-          {true ? <BeatLoader size={10} color="#000000" /> : "Login"}</Button>
+          {loading ? <BeatLoader size={10} color="#000000" /> : "Login"}
+        </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
