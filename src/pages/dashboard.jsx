@@ -29,7 +29,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 px-4">
       {loading && (
         <BarLoader width={"100%"} color="#36d7b7" />
       )}
