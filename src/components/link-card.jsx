@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom"
+import { Button } from "./ui/button"
+import { Copy, Delete, Download } from "lucide-react"
 
 const LinkCard = ({ url, fetchUrls }) => {
 
@@ -19,6 +21,18 @@ const LinkCard = ({ url, fetchUrls }) => {
           {new Date(url?.created_at).toLocaleString()}
         </span>
       </Link>
+
+      <div className="flex gap-2">
+        <Button variant={"ghost"}>
+          <Copy />
+        </Button>
+        <Button variant={"ghost"}>
+          <Download />
+        </Button>
+        <Button variant={"ghost"}>
+          <Delete />
+        </Button>
+      </div>
 
     </div>
   )
