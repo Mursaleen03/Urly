@@ -28,7 +28,7 @@ const Header = () => {
                     : (
                         <DropdownMenu>
                             <DropdownMenuTrigger className="outline-none w-10 overflow-hidden rounded-full">
-                                <Avatar>
+                                <Avatar className={"cursor-pointer"}>
                                     <AvatarImage src= {user?.user_metadata?.profile_pic} />
                                     <AvatarFallback>IS</AvatarFallback>
                                 </Avatar>
@@ -44,7 +44,7 @@ const Header = () => {
                                     </DropdownMenuItem>
                                 <DropdownMenuItem className={"text-red-400"}>
                                     <LogOut className="mr-2 h-4 w-4" />
-                                    <span
+                                    <span className="cursor-pointer"
                                         onClick={() => {
                                             fnLogout().then(() =>{
                                                 fetchUser();
