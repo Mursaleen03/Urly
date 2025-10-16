@@ -26,7 +26,7 @@ export async function deleteUrl(id) {
   return data;
 }
 
-export async function createUrl({user_id, title, longUrl, custom_url}, qrcode) {
+export async function createUrl({user_id, title, longUrl, customUrl}, qrcode) {
 
   const short_url = Math.random().toString(36).substring(2, 6);
 
@@ -46,7 +46,7 @@ export async function createUrl({user_id, title, longUrl, custom_url}, qrcode) {
     {
       user_id,
       title,
-      originalUrl: longUrl,
+      original_url: longUrl,
       custom_url: customUrl || null,
       short_url,
       qr,
@@ -59,3 +59,18 @@ export async function createUrl({user_id, title, longUrl, custom_url}, qrcode) {
   }
   return data;
 }
+
+export async function getLongUrl(id) {
+  const {data, error} = await supabase
+  .from("urls")
+  .select("id, original_url")
+  .or(`short_url.eq.${id},custom_url.eq.${id}`)
+  .single();
+  
+  if (error) {
+    console.error(error.message);
+    throw new Error("Error fetching short Link");
+  }
+  return data;
+}
+

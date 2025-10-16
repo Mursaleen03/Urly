@@ -13,13 +13,17 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import Error from "./error";
 import { Card } from "./ui/card";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import QRCode from "react-qrcode-logo";
+import useFetch from "@/hooks/use-fetch";
+import { createUrl } from "db/apiUrls";
+import { BeatLoader } from "react-spinners";
 
 const CreateLink = () => {
 
     const { user } = UrlState();
+    
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const longLink = searchParams.get("createNew");
@@ -45,6 +49,45 @@ const CreateLink = () => {
         });
     };
 
+    const {
+        loading,
+        error,
+        data,
+        fn: fnCreateUrl,
+    } = useFetch(createUrl, { ...formValues, user_id: user?.id });
+
+    useEffect(() => {
+        if (error === null && data) {
+            navigate(`/link/${data[0].id}`);
+        }
+    }, [error, data, navigate]);
+
+    const createNewLink = async () => {
+        setErrors({});
+        try {
+            await schema.validate(formValues, { abortEarly: false });
+            if (ref.current && ref.current.canvasRef.current) {
+                const canvas = ref.current.canvasRef.current;
+                const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+                await fnCreateUrl(blob);
+            } else {
+                await fnCreateUrl();
+            }
+        } catch (e) {
+            const newErrors = {};
+            if (e.inner) {
+                e.inner.forEach((err) => {
+                    newErrors[err.path] = err.message;
+                });
+            } else {
+                newErrors.general = e.message;
+                
+            }
+            setErrors(newErrors);
+        }
+    }
+    
+
     return (
         <Dialog defaultOpen={longLink}
             onOpenChange={(res) => {
@@ -67,14 +110,16 @@ const CreateLink = () => {
                     value={formValues.title}
                     onChange={handleChange}
                 />
-                <Error message={"Some Error"} />
+                {errors.title && <Error message={errors.title} />}
+
                 <Input
                     id="longUrl"
                     placeholder="Enter Your Loooong URL"
                     value={formValues.longUrl}
                     onChange={handleChange}
                 />
-                <Error message={"Some Error"} />
+                {errors.longUrl && <Error message={errors.longUrl} />}
+
                 <div className="flex items-center gap-2">
                     <Card className={"p-2"}>URLy.in</Card> /
                     <Input
@@ -84,11 +129,17 @@ const CreateLink = () => {
                         onChange={handleChange}
                     />
                 </div>
-                <Error message={"Some Error"} />
+
+                {error && <Error message={error.message} />}
+                {/* {console.log(error)} */}
                 <DialogFooter className="sm:justify-start">
-                    <DialogClose asChild>
-                        <Button className={"cursor-pointer"} variant="destructive">
-                            Create
+                    <DialogClose>
+                        <Button
+                            disabled={loading}
+                            onClick={createNewLink}
+                            className={"cursor-pointer"}
+                            variant="destructive">
+                            {loading ? <BeatLoader size={10} color="white" /> : "Create Link"}
                         </Button>
                     </DialogClose>
                 </DialogFooter>
