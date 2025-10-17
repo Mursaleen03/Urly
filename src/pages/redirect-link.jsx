@@ -1,6 +1,9 @@
 import useFetch from "@/hooks/use-fetch";
-import { getLongUrl, storeClicks } from "db/apiUrls";
+import { storeClicks } from "db/apiClicks";
+import { getLongUrl } from "db/apiUrls";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom"
+import { BarLoader } from "react-spinners";
 
 const RedirectLink = () => {
 
@@ -12,9 +15,30 @@ const RedirectLink = () => {
     originalUrl: data?.original_url,
   });
 
-  return (
-    <div>Redirect Link</div>
-  )
+  useEffect(() => {
+    fn()
+  }, [])
+
+  useEffect(() => {
+    if(!loading && data) {
+      fnStats();
+    }
+  }, [loading])
+
+  if(loading || loadingStats) {
+    return (
+      <div className="p-4">
+
+        <BarLoader width={"100%"} color="#36d7b7" />
+        <br />
+        Redirecting...
+      </div>
+    )
+  }
+  
+  
+
+  return null;
 }
 
 export default RedirectLink
