@@ -11,7 +11,7 @@ import RequireAuth from './components/require-auth'
 
 const router = createBrowserRouter([
   {
-    element: <AppLayout/>,
+    element: <AppLayout />,
     children: [
       {
         path: '/',

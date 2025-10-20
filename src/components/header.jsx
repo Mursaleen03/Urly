@@ -17,7 +17,7 @@ const Header = () => {
 
     return (
         <>
-        <nav className="py-4 flex justify-between items-center mr-4">
+        <nav className="flex justify-between items-center mr-4">
             <Link to={"/"}>
                 <img src="logo.png" className="h-20" alt="URLy Logo" />
             </Link>

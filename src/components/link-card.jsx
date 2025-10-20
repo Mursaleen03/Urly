@@ -4,12 +4,14 @@ import { Copy, Delete, Download, Trash } from "lucide-react"
 import useFetch from "@/hooks/use-fetch"
 import { deleteUrl } from "db/apiUrls"
 import { BeatLoader } from "react-spinners"
+const SITE_URL = window.location.origin || import.meta.env.VITE_SITE_URL;
+
 
 const LinkCard = ({ url, fetchUrls }) => {
 
   const downloadImage = () => {
       const imageUrl = url?.qr;
-      const fileName = url?.title;
+      const fileName = `${url?.title || "qr"}-${SITE_URL.replace(/^https?:\/\//, "")}`;
 
       const anchor = document.createElement('a');
       anchor.href = imageUrl;
@@ -30,7 +32,7 @@ const LinkCard = ({ url, fetchUrls }) => {
       <Link to={`/link/${url?.id}`} className="flex flex-col flex-1">
         <span className="text-3xl font-extrabold hover:underline cursor-pointer">{url?.title}</span>
         <span className="text-2xl text-blue-400 font-bold hover:underline cursor-pointer">
-          https://urly.in/{url?.custom_url ? url?.custom_url : url?.id}
+          {`${SITE_URL}/${url?.custom_url ? url?.custom_url : url?.id}`}
         </span>
         <span className="flex items-center gap-1 hover:underline cursor-pointer">
           {url?.original_url}
@@ -45,7 +47,7 @@ const LinkCard = ({ url, fetchUrls }) => {
         className={"cursor-pointer"}
         variant={"ghost"}
         onClick={() => {
-          navigator.clipboard.writeText(`https://urly.in/${url?.short_url}`);
+          navigator.clipboard.writeText(`${SITE_URL}/${url?.short_url}`);
         }}
         >
           <Copy />
